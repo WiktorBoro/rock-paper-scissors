@@ -1,11 +1,7 @@
-# save this as game_main.py
-from json import dumps
-from flask import Flask, escape, request, render_template, session, make_response
-from secrets import token_urlsafe
+from flask import Flask, request, render_template, make_response
 from random import randrange
-from datetime import datetime
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, select, text, insert
 from os.path import exists
 import database_models
 from sqlalchemy.sql import func
@@ -17,8 +13,9 @@ r_p_s_game.secret_key = "lYBvDRtTtFjZ67rWf5wZ"
 if not exists('RPS_DB.sqlite'):
     database_models.create_db()
 
-db_session = sessionmaker(bind=create_engine('sqlite:///RPS_DB.sqlite', echo=True))
-db_session = db_session()
+conn_db = create_engine('sqlite:///RPS_DB.sqlite', echo=True)
+
+db_session = create_engine('sqlite:///RPS_DB.sqlite', echo=True)
 
 
 @r_p_s_game.route('/save-to-db', methods=['POST'])
@@ -42,10 +39,10 @@ def get_user_info():
 
 def create_new_user():
     # try:
-    new_user = db_session.query(func.max('user_id')).last()
-    print(new_user)
+    new_user = select((text('MAX(user_id)')))
     # except TypeError:
     #     new_user = 0
+    print("Test ", new_user)
     return new_user
 
 
@@ -97,7 +94,8 @@ def game():
             # sprawdzenie unikalności userID
             new_user = create_new_user()
             response = make_response(render_template('index.html'))
-            response.set_cookie('userID', new_user)
+            print(new_user)
+            response.set_cookie('userID', str(new_user))
             print(new_user)
             return response
 
