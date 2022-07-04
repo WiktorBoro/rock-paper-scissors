@@ -1,0 +1,22 @@
+<head>
+<title>Papier, kamień, nożyce - Rekrutacja</title>
+<link href="{{url_for('static', filename='css/main.css')}}" rel="stylesheet" type="text/css">
+</head>
+<body>
+<h1>Papier, kamień, nożyce</h1>
+    <h3>Twoje kredyty:</h3>
+    <div id="credits">0</div>
+    <div><button type="button" onclick="addCredits()" id="addCredits">Dodaj kredyty</button></div>
+    <div>Wybierz</div>
+    <div>
+        <button type="button" onclick="starGame(this.innerHTML)">Papier</button>
+        <button type="button" onclick="starGame(this.innerHTML)">Kamień</button>
+        <button type="button" onclick="starGame(this.innerHTML)">Nożyce</button>
+    </div>
+    <div hidden id="rng_choice">Komputer wybrał</div>
+    <div id="rng_result"></div>
+    <div id="comment"></div>
+
+<script src="{{url_for('static', filename='js/main.js')}}"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.js"></script>
+</body>
