@@ -54,7 +54,7 @@ function starGame(value) {
 
 function sendData(result, credits_before_game){
     date_now = Date.now();
-    player_id = console.log(document.cookie.replace('userID=', ''));
+    player_id = document.cookie.replace('userID=', '');
 
     $.ajax({
     url: "/save-to-db",
@@ -67,11 +67,5 @@ function sendData(result, credits_before_game){
         "player_id": player_id,
         "date_now": date_now,
     }),
-    success:  (data)  =>{
-        console.log(data);
-    },
-    error: (data)  =>{
-        console.log(data);
-    }
     });
  }
