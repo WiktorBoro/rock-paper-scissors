@@ -1,5 +1,8 @@
 var player_id = document.cookie.replace('userID=', '');
-if (result['credits_after_game']==0) document.getElementById('addCredits').disabled = false;
+
+document.addEventListener('DOMContentLoaded', function() {
+if (document.getElementById('credits').innerHTML == 0) document.getElementById('addCredits').disabled = false;
+}, false);
 
 function addCredits(){
     var credits = parseInt(document.getElementById('credits').innerHTML)
