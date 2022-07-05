@@ -31,6 +31,11 @@ def game():
         return response
 
 
+@r_p_s_game.route('/result', methods=['GET'])
+def game_result():
+    pass
+
+
 @r_p_s_game.route('/api/play-game', methods=['POST'])
 def play_game():
     credits_after_win = 4
@@ -134,10 +139,10 @@ def get_result_from_day():
     timedelta_ = timedelta(days=1)
     date = datetime.strptime(date, '%Y-%m-%d')
 
-    result_from_day = {f"Game id {game_id}": {"User id": user,
-                                              "Result": result,
-                                              "Credits before game": credits_before_game,
-                                              "Game time": game_time} for
+    result_from_day = {f"Game {game_id}": {"User id": user,
+                                           "Result": result,
+                                           "Credits before game": credits_before_game,
+                                           "Game time": game_time} for
                        game_id, user, result, credits_before_game, game_time
                        in db_session.query(GameDB.id,
                                            GameDB.user,
