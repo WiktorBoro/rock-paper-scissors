@@ -6,6 +6,11 @@ function addCredits() {
         }
 }
 
+function newSession(){
+    document.cookie = "userID="
+    window.location.reload(true);
+}
+
 function starGame(selected_par) {
     var credits_before_game = parseInt(document.getElementById('credits').innerHTML)
     var credits_after_win = 4
@@ -30,7 +35,7 @@ function sendData(credits_before_game, credits, selected_par){
     player_id = document.cookie.replace('userID=', '');
 
     $.ajax({
-    url: "/save-to-db",
+    url: "/api/play-game",
     type: "POST",
     dataType: 'json',
     contentType: 'application/json',
