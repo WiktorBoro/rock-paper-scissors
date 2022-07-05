@@ -28,8 +28,8 @@ class GameDB(base):
     game_time = Column(DateTime(timezone=True))
     credits_before_game = Column(Integer)
 
-    def __init__(self, user_id, result, credits_before_game):
-        self.user_id = user_id
+    def __init__(self, user, result, credits_before_game):
+        self.user = user
         self.result = result
         self.game_time = func.now()
         self.credits_before_game = credits_before_game
