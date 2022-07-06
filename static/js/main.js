@@ -18,6 +18,7 @@ function addCredits(){
         "user_id": player_id,
     }),
     success:  (result)  =>{
+
         document.getElementById('credits').innerHTML = result['Credits'];
         document.getElementById('addCredits').disabled = true;
     },
@@ -46,6 +47,7 @@ function starGame(players_choice) {
         "players_choice":players_choice
     }),
     success:  (result)  =>{
+
     if ("Error" in result){
         document.getElementById('comment').innerHTML = result['Error']
     }
@@ -56,10 +58,10 @@ function starGame(players_choice) {
         if (result['credits_after_game']==0) document.getElementById('addCredits').disabled = false;
         if (result['result'] == "win") {
             document.getElementById('credits').innerHTML = credits + credits_after_win
-            document.getElementById('comment').innerHTML = "Wygrałeś! Otrzymujesz 4 kredyty"
+            document.getElementById('comment').innerHTML = "You win! You get 4 credits"
             }
-        else if (result['result'] == "lose") document.getElementById('comment').innerHTML = "Przegrałeś!"
-        else if (result['result'] == "draw") document.getElementById('comment').innerHTML = "Remis!"
+        else if (result['result'] == "lose") document.getElementById('comment').innerHTML = "You lost!"
+        else if (result['result'] == "draw") document.getElementById('comment').innerHTML = "Draw!"
         }
     },
     error: (data)  =>{

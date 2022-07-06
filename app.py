@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template, make_response
+from flask import Flask, request, render_template, make_response, jsonify
 from random import randrange
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
@@ -7,7 +7,6 @@ from database_models import UsersDB, GameDB, create_db
 from sqlalchemy.sql import func
 from datetime import datetime, timedelta
 from flask_swagger_ui import get_swaggerui_blueprint
-
 
 r_p_s_game = Flask(__name__)
 r_p_s_game.secret_key = "lYBvDRtTtFjZ67rWf5wZ"
@@ -39,7 +38,7 @@ def game():
             db_session.query(UsersDB.credits_).filter(UsersDB.user_id == request.cookies.get(key="userID")).first()[0]
         return render_template('index.html', data={'user_cred': user_cred})
     else:
-        new_user = create_new_user()
+        new_user = create_new_user().get_json(force=True)
         user_id = new_user['User number']
         user_cred = new_user['Start credits']
         response = make_response(render_template('index.html', data={'user_cred': user_cred}))
@@ -57,17 +56,17 @@ def play_game():
     credits_after_win = 4
     game_cost = -3
     request_json = request.get_json(force=True)
-    print(request_json)
+
     user_id = request_json['user_id']
     credits_before_game = db_session.query(UsersDB.credits_).filter(UsersDB.user_id == user_id).first()[0]
 
     if credits_before_game == 0:
-        return {"Error": "Top up your credits!"}
+        return make_response(jsonify({"Error": "Top up your credits!"}), 400)
 
     credits_after_game = credits_before_game + game_cost
 
     if credits_after_game < 0:
-        return {"Error": "You don't have enough credits for the next game!"}
+        return make_response(jsonify({"Error": "You don't have enough credits for the next game!"}), 400)
 
     players_choice = request_json['players_choice']
 
@@ -80,31 +79,35 @@ def play_game():
                            game_result=game_result_and_rng_choice['result'],
                            credits_before_game=credits_before_game,
                            credits_after_game=credits_after_game)
-    return game_result_and_rng_choice \
-           | {'credits_before_game': credits_before_game} \
-           | {'credits_after_game': credits_after_game}
+    return make_response(jsonify(game_result_and_rng_choice \
+                                 | {'credits_before_game': credits_before_game} \
+                                 | {'credits_after_game': credits_after_game}), 200)
 
 
 def get_winner(players_choice):
     if request.method == 'POST':
-        option_list = ["Papier", "Kamień", "Nożyce"]
+        option_list = ["Paper", "Rock", "Scissors"]
+
+        if players_choice not in option_list:
+            return make_response(jsonify({"Error": "You can only choose \"Rock\" \"Paper\" \"Scissors\"!"}), 400)
+
         rng_choice = option_list[randrange(3)]
         result = ""
 
         if players_choice == rng_choice:
             result = "draw"
-        elif players_choice == "Papier":
-            if rng_choice == "Kamień":
+        elif players_choice == "Paper":
+            if rng_choice == "Rock":
                 result = "win"
             else:
                 result = "lose"
-        elif players_choice == "Kamień":
-            if rng_choice == "Nożyce":
+        elif players_choice == "Rock":
+            if rng_choice == "Scissors":
                 result = "win"
             else:
                 result = "lose"
-        elif players_choice == "Nożyce":
-            if rng_choice == "Papier":
+        elif players_choice == "Scissors":
+            if rng_choice == "Paper":
                 result = "win"
             else:
                 result = "lose"
@@ -127,7 +130,10 @@ def save_game_result_to_db(user_id, game_result, credits_before_game, credits_af
 def get_user_list():
     user_dict = {f"User {user}": {"id": user, "credits": cred}
                  for user, cred in db_session.query(UsersDB.user_id, UsersDB.credits_).all()}
-    return user_dict
+    if user_dict:
+        return user_dict
+    else:
+        return make_response(jsonify({"Error": "No users in database!"}), 400)
 
 
 @r_p_s_game.route('/api/create-new-user', methods=['POST'])
@@ -143,13 +149,11 @@ def create_new_user():
                        credits_=start_credits)
     db_session.add(add_user)
     db_session.commit()
-    return {"User number": new_user, "Start credits": start_credits}
+    return make_response(jsonify({"User number": new_user, "Start credits": start_credits}), 200)
 
 
-@r_p_s_game.route('/api/get-result-from-day', methods=['GET'])
-def get_result_from_day():
-    date = request.get_json(force=True)['date']
-
+@r_p_s_game.route('/api/get-result-from-day/<path:date>', methods=['GET'])
+def get_result_from_day(date):
     timedelta_ = timedelta(days=1)
     date = datetime.strptime(date, '%Y-%m-%d')
 
@@ -164,7 +168,10 @@ def get_result_from_day():
                                            GameDB.credits_before_game,
                                            GameDB.game_time).filter(date < GameDB.game_time,
                                                                     date + timedelta_ > GameDB.game_time).all()}
-    return result_from_day
+    if result_from_day:
+        return make_response(jsonify(result_from_day), 400)
+    else:
+        return make_response(jsonify({"Error": "There were no games that day!"}), 400)
 
 
 @r_p_s_game.route('/api/add-credits-to-user', methods=['POST'])
@@ -174,9 +181,9 @@ def add_credits_to_user():
     if db_session.query(UsersDB.credits_).filter(UsersDB.user_id == user_id).first()[0] == 0:
         db_session.query(UsersDB).filter(UsersDB.user_id == user_id).update({'credits_': 10})
         db_session.commit()
-        return {"Message": "Success!", "User id": user_id, "Credits": 10}
+        return make_response(jsonify({"Message": "Success!", "User id": user_id, "Credits": 10}), 200)
     else:
-        return {"Error": "Only 0 credits users can add new credits!"}
+        return make_response(jsonify({"Error": "Only 0 credits users can add new credits!"}), 400)
 
 
 r_p_s_game.run(debug=True)

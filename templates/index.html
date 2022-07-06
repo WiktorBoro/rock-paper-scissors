@@ -5,20 +5,20 @@
 <link href="{{url_for('static', filename='css/main.css')}}" rel="stylesheet" type="text/css">
 </head>
 <body>
-<h1>Papier, kamień, nożyce</h1>
-    <h3>Twoje kredyty:</h3>
+<h1>Paper, Rock, Scissors</h1>
+    <h3>Your credits:</h3>
     <div id="credits">{{data.user_cred}}</div>
-    <div><button type="button" onclick="addCredits()" id="addCredits" disabled>Dodaj kredyty</button></div>
-    <div>Wybierz</div>
+    <div><button type="button" onclick="addCredits()" id="addCredits" disabled>Add credit</button></div>
+    <div>Chose</div>
     <div>
-        <button type="button" onclick="starGame(this.innerHTML)">Papier</button>
-        <button type="button" onclick="starGame(this.innerHTML)">Kamień</button>
-        <button type="button" onclick="starGame(this.innerHTML)">Nożyce</button>
+        <button type="button" onclick="starGame(this.innerHTML)">Paper</button>
+        <button type="button" onclick="starGame(this.innerHTML)">Rock</button>
+        <button type="button" onclick="starGame(this.innerHTML)">Scissors</button>
     </div>
-    <div hidden id="rng_choice">Komputer wybrał</div>
+    <div hidden id="rng_choice">The computer chose</div>
     <div id="rng_result"></div>
     <div id="comment"></div>
-    <div><button type="button" onclick="newSession()">Nowa sesja</button></div>
+    <div><button type="button" onclick="newSession()">New session</button></div>
 <script src="{{url_for('static', filename='js/main.js')}}"></script>
 <script src="https://code.jquery.com/jquery-3.6.0.js"></script>
 </body>
