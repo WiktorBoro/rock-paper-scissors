@@ -1,7 +1,9 @@
 # Rock Paper Scissors game with API online presentation
 
 ## Go to
-`http://rock-paper-scissors2.herokuapp.com/`
+`http://rock-paper-scissors2.herokuapp.com/` 
+
+<b>The docker container was used for deployment on herok</b>
 
 ![img_1.png](img_1.png)
 
