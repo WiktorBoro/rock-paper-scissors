@@ -2,10 +2,12 @@
 
 ## Go to
 `http://rock-paper-scissors2.herokuapp.com/`
+
 ![img_1.png](img_1.png)
 
 ## You can get acquainted with API functions (Swagger)
 `http://rock-paper-scissors2.herokuapp.com/swagger/`
+
 ![img.png](img.png)
 
 # Rock Paper Scissors game with API desktop
