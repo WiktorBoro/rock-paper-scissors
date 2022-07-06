@@ -1,4 +1,4 @@
-var player_id = document.cookie.replace('userID=', '');
+var player_id = document.cookie.replace('user_id=', '');
 
 document.addEventListener('DOMContentLoaded', function() {
 if (document.getElementById('credits').innerHTML == 0) document.getElementById('addCredits').disabled = false;
@@ -30,7 +30,7 @@ function addCredits(){
 }
 
 function newSession(){
-    document.cookie = "userID="
+    document.cookie = "user_id="
     window.location.reload(true);
 }
 
@@ -57,7 +57,6 @@ function starGame(players_choice) {
         document.getElementById('credits').innerHTML = result['credits_after_game']
         if (result['credits_after_game']==0) document.getElementById('addCredits').disabled = false;
         if (result['result'] == "win") {
-            document.getElementById('credits').innerHTML = credits + credits_after_win
             document.getElementById('comment').innerHTML = "You win! You get 4 credits"
             }
         else if (result['result'] == "lose") document.getElementById('comment').innerHTML = "You lost!"

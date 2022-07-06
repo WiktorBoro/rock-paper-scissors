@@ -33,23 +33,17 @@ r_p_s_game.register_blueprint(SWAGGERUI_BLUEPRINT, url_prefix=SWAGGER_URL)
 
 @r_p_s_game.route('/', methods=['GET'])
 def game():
-    if all([request.cookies, request.cookies.get(key="userID")]):
-        user_cred = \
-            db_session.query(UsersDB.credits_).filter(UsersDB.user_id == request.cookies.get(key="userID")).first()[0]
-        return render_template('index.html', data={'user_cred': user_cred})
+    user_cred = \
+        db_session.query(UsersDB.credits_).filter(UsersDB.user_id == request.cookies.get(key="user_id")).first()
+    if user_cred:
+        return render_template('index.html', data={'user_cred': user_cred[0]})
     else:
         new_user = create_new_user().get_json(force=True)
-        user_id = new_user['User number']
-        user_cred = new_user['Start credits']
+        user_id = new_user['user_id']
+        user_cred = new_user['start_credits']
         response = make_response(render_template('index.html', data={'user_cred': user_cred}))
-        response.set_cookie('userID', str(user_id))
+        response.set_cookie('user_id', str(user_id))
         return response
-
-
-@r_p_s_game.route('/result', methods=['GET'])
-def game_result_page():
-    pass
-
 
 @r_p_s_game.route('/api/play-game', methods=['POST'])
 def play_game():
@@ -126,12 +120,24 @@ def save_game_result_to_db(user_id, game_result, credits_before_game, credits_af
     db_session.commit()
 
 
-@r_p_s_game.route('/api/get-user-list', methods=['GET'])
+@r_p_s_game.route('/api/get-user-stat', methods=['GET'])
 def get_user_list():
-    user_dict = {f"User {user}": {"id": user, "credits": cred}
-                 for user, cred in db_session.query(UsersDB.user_id, UsersDB.credits_).all()}
+    user_dict = dict()
+
+    for user, cred in db_session.query(UsersDB.user_id, UsersDB.credits_).all():
+        user_dict.update({f"user_{user}": {"id": user, "credits": cred}})
+
+        for result in db_session.query(GameDB.result).filter(GameDB.user == user).all():
+            result = result[0]
+            if result not in user_dict[f'user_{user}']:
+                user_dict[f'user_{user}'].update({result: 1})
+            else:
+                user_dict[f'user_{user}'][result] += 1
+
+    print(user_dict)
+
     if user_dict:
-        return user_dict
+        return make_response(jsonify(user_dict), 200)
     else:
         return make_response(jsonify({"Error": "No users in database!"}), 400)
 
@@ -149,7 +155,7 @@ def create_new_user():
                        credits_=start_credits)
     db_session.add(add_user)
     db_session.commit()
-    return make_response(jsonify({"User number": new_user, "Start credits": start_credits}), 200)
+    return make_response(jsonify({"user_id": new_user, "start_credits": start_credits}), 200)
 
 
 @r_p_s_game.route('/api/get-result-from-day/<path:date>', methods=['GET'])
@@ -157,10 +163,10 @@ def get_result_from_day(date):
     timedelta_ = timedelta(days=1)
     date = datetime.strptime(date, '%Y-%m-%d')
 
-    result_from_day = {f"Game {game_id}": {"User id": user,
-                                           "Result": result,
-                                           "Credits before game": credits_before_game,
-                                           "Game time": game_time} for
+    result_from_day = {f"game_{game_id}": {"user_id": user,
+                                           "result": result,
+                                           "credits_before_game": credits_before_game,
+                                           "game_time": str(game_time)} for
                        game_id, user, result, credits_before_game, game_time
                        in db_session.query(GameDB.id,
                                            GameDB.user,
@@ -169,7 +175,7 @@ def get_result_from_day(date):
                                            GameDB.game_time).filter(date < GameDB.game_time,
                                                                     date + timedelta_ > GameDB.game_time).all()}
     if result_from_day:
-        return make_response(jsonify(result_from_day), 400)
+        return make_response(jsonify(result_from_day), 200)
     else:
         return make_response(jsonify({"Error": "There were no games that day!"}), 400)
 
