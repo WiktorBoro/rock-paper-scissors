@@ -134,8 +134,6 @@ def get_user_list():
             else:
                 user_dict[f'user_{user}'][result] += 1
 
-    print(user_dict)
-
     if user_dict:
         return make_response(jsonify(user_dict), 200)
     else:
@@ -192,4 +190,5 @@ def add_credits_to_user():
         return make_response(jsonify({"Error": "Only 0 credits users can add new credits!"}), 400)
 
 
-r_p_s_game.run(debug=True)
+if __name__ == "__main__":
+    r_p_s_game.run()
