@@ -7,6 +7,7 @@ from database_models import UsersDB, GameDB, create_db
 from sqlalchemy.sql import func
 from datetime import datetime, timedelta
 from flask_swagger_ui import get_swaggerui_blueprint
+from os import environ
 
 r_p_s_game = Flask(__name__)
 r_p_s_game.secret_key = "lYBvDRtTtFjZ67rWf5wZ"
@@ -35,6 +36,7 @@ r_p_s_game.register_blueprint(SWAGGERUI_BLUEPRINT, url_prefix=SWAGGER_URL)
 def game():
     user_cred = \
         db_session.query(UsersDB.credits_).filter(UsersDB.user_id == request.cookies.get(key="user_id")).first()
+    # if we don't have "user_id" cookies we need to create new user
     if user_cred:
         return render_template('index.html', data={'user_cred': user_cred[0]})
     else:
@@ -44,6 +46,7 @@ def game():
         response = make_response(render_template('index.html', data={'user_cred': user_cred}))
         response.set_cookie('user_id', str(user_id))
         return response
+
 
 @r_p_s_game.route('/api/play-game', methods=['POST'])
 def play_game():
@@ -82,6 +85,7 @@ def get_winner(players_choice):
     if request.method == 'POST':
         option_list = ["Paper", "Rock", "Scissors"]
 
+        # if someone sent an invalid string
         if players_choice not in option_list:
             return make_response(jsonify({"Error": "You can only choose \"Rock\" \"Paper\" \"Scissors\"!"}), 400)
 
@@ -142,13 +146,17 @@ def get_user_list():
 
 @r_p_s_game.route('/api/create-new-user', methods=['POST'])
 def create_new_user():
-    new_user = db_session.query(func.max(UsersDB.user_id)).all()[0][0]
+    # we use max to take the last user
+    new_user = db_session.query(func.max(UsersDB.user_id)).first()[0]
     if not new_user:
+        # if we don't have user we start from beginning
         new_user = 1
     else:
         new_user = int(new_user) + 1
 
     start_credits = 10
+
+    # save new user do db
     add_user = UsersDB(user_id=new_user,
                        credits_=start_credits)
     db_session.add(add_user)
@@ -191,4 +199,5 @@ def add_credits_to_user():
 
 
 if __name__ == "__main__":
-    r_p_s_game.run()
+    port = environ.get("PORT", 5000)
+    r_p_s_game.run(debug=False, host='0.0.0.0', port=port)
