@@ -1,0 +1,109 @@
+{
+  "info": {
+    "description": "Rock Paper Scissors",
+    "version": "1.0.0",
+    "title": "Rock Paper Scissors",
+    "license": {
+      "name": "MIT",
+      "url": "https://opensource.org/licenses/MIT"
+    }
+  },
+"swagger": "2.0",
+  "paths": {
+    "/api/get-user-list": {
+      "get": {
+        "summary": "Returns from the database user and their current credits",
+        "responses": {
+          "200": {
+            "description": "OK",
+          }
+        }
+      }
+    },
+    "/api/get-result-from-day": {
+      "get": {
+        "parameters": [
+          {
+            "in": "body",
+            "name": "date",
+            "description": "date1",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": ["date"],
+              "properties": {
+                "user_id": {"type": "string"}
+              }
+            }
+          }
+        ],
+        "summary": "Play game",
+        "responses": {
+          "200": {
+            "description": "OK",
+          }
+        }
+      }
+    },
+        "/api/create-new-user": {
+      "post": {
+        "summary": "Create a new user",
+        "responses": {
+          "200": {
+            "description": "OK",
+          }
+        }
+      }
+    },
+    "/api/play-game": {
+      "post": {
+        "parameters": [
+          {
+            "in": "body",
+            "name": "user_id",
+            "description": "user_id1",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": ["user_id"],
+              "properties": {
+                "user_id": {"type": "integer"}
+              }
+            }
+          }
+        ],
+        "summary": "Play game",
+        "responses": {
+          "200": {
+            "description": "OK",
+          }
+        }
+      }
+    },
+    "/api/add-credits-to-user": {
+      "post": {
+        "parameters": [
+          {
+            "in": "body",
+            "name": "user_id",
+            "description": "user_id1",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": ["user_id"],
+              "properties": {
+                "user_id": {"type": "integer"}
+              }
+            }
+          }
+        ],
+        "summary": "Play game",
+        "responses": {
+          "200": {
+            "description": "OK",
+          }
+        }
+      }
+    }
+  }
+}

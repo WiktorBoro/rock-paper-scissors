@@ -6,6 +6,8 @@ from os.path import exists
 from database_models import UsersDB, GameDB, create_db
 from sqlalchemy.sql import func
 from datetime import datetime, timedelta
+from flask_swagger_ui import get_swaggerui_blueprint
+
 
 r_p_s_game = Flask(__name__)
 r_p_s_game.secret_key = "lYBvDRtTtFjZ67rWf5wZ"
@@ -16,6 +18,19 @@ if not exists('RPS_DB.sqlite'):
 db_session = sessionmaker(bind=create_engine('sqlite:///RPS_DB.sqlite?check_same_thread=False'))
 db_session = db_session()
 
+# swagger specific
+SWAGGER_URL = '/swagger'
+API_URL = '/static/swagger.json'
+SWAGGERUI_BLUEPRINT = get_swaggerui_blueprint(
+    SWAGGER_URL,
+    API_URL,
+    config={
+        'app_name': "Rock Paper Scissors"
+    }
+)
+r_p_s_game.register_blueprint(SWAGGERUI_BLUEPRINT, url_prefix=SWAGGER_URL)
+# end swagger specific
+
 
 @r_p_s_game.route('/', methods=['GET'])
 def game():
@@ -24,15 +39,16 @@ def game():
             db_session.query(UsersDB.credits_).filter(UsersDB.user_id == request.cookies.get(key="userID")).first()[0]
         return render_template('index.html', data={'user_cred': user_cred})
     else:
-        new_user = create_new_user()['User number']
-        user_cred = db_session.query(UsersDB.credits_).filter(UsersDB.user_id == new_user).first()[0]
+        new_user = create_new_user()
+        user_id = new_user['User number']
+        user_cred = new_user['Start credits']
         response = make_response(render_template('index.html', data={'user_cred': user_cred}))
-        response.set_cookie('userID', str(new_user))
+        response.set_cookie('userID', str(user_id))
         return response
 
 
 @r_p_s_game.route('/result', methods=['GET'])
-def game_result():
+def game_result_page():
     pass
 
 
@@ -40,9 +56,8 @@ def game_result():
 def play_game():
     credits_after_win = 4
     game_cost = -3
-
     request_json = request.get_json(force=True)
-
+    print(request_json)
     user_id = request_json['user_id']
     credits_before_game = db_session.query(UsersDB.credits_).filter(UsersDB.user_id == user_id).first()[0]
 
@@ -112,7 +127,6 @@ def save_game_result_to_db(user_id, game_result, credits_before_game, credits_af
 def get_user_list():
     user_dict = {f"User {user}": {"id": user, "credits": cred}
                  for user, cred in db_session.query(UsersDB.user_id, UsersDB.credits_).all()}
-
     return user_dict
 
 
