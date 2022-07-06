@@ -57,7 +57,7 @@
           {
             "in": "path",
             "name": "date",
-            "description": "As \"user_id\" value input date in %Y-%m-%d format",
+            "description": "As \"date\" value input date in %Y-%m-%d format",
             "required": true,
             "type": "string"
           }
