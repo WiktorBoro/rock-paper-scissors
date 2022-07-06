@@ -57,12 +57,15 @@ def play_game():
     user_id = request_json['user_id']
     credits_before_game = db_session.query(UsersDB.credits_).filter(UsersDB.user_id == user_id).first()[0]
 
-    if credits_before_game == 0:
-        return make_response(jsonify({"Error": "Top up your credits!"}), 400)
-
     credits_after_game = credits_before_game + game_cost
 
-    if credits_after_game < 0:
+    if not credits_before_game:
+        return make_response(jsonify({"Error": "The player doesn't exist!"}), 400)
+
+    elif credits_before_game == 0:
+        return make_response(jsonify({"Error": "Top up your credits!"}), 400)
+
+    elif credits_after_game < 0:
         return make_response(jsonify({"Error": "You don't have enough credits for the next game!"}), 400)
 
     players_choice = request_json['players_choice']
