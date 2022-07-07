@@ -1,3 +1,4 @@
 Flask~=2.1.2
 SQLAlchemy~=1.4.39
 flask_swagger_ui~=4.11.1
+pytest~=7.1.2

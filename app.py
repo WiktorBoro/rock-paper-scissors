@@ -203,6 +203,10 @@ def add_credits_to_user():
         return make_response(jsonify({"Error": "Only 0 credits users can add new credits!"}), 400)
 
 
-if __name__ == "__main__":
+def run_app():
     port = environ.get("PORT", 5000)
     r_p_s_game.run(debug=False, host='0.0.0.0', port=port)
+
+
+if __name__ == "__main__":
+    run_app()
